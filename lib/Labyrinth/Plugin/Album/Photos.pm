@@ -3,7 +3,7 @@ package Labyrinth::Plugin::Album::Photos;
 use strict;
 use warnings;
 
-my $VERSION = '1.03';
+my $VERSION = '1.04';
 
 =head1 NAME
 
@@ -26,6 +26,7 @@ use Image::Size;
 use Labyrinth::Audit;
 use Labyrinth::DBUtils;
 use Labyrinth::DTUtils;
+use Labyrinth::Media;
 use Labyrinth::MLUtils;
 use Labyrinth::Support;
 use Labyrinth::Variables;
@@ -55,7 +56,7 @@ for(keys %fields) {
     push @allfields, $_;
 }
 
-my $LEVEL       = ADMIN;
+my $LEVEL       = EDITOR;
 my $INDEXKEY    = 'photoid';
 
 my $hits = Labyrinth::Plugin::Hits->new();
@@ -65,7 +66,7 @@ my $hits = Labyrinth::Plugin::Hits->new();
 
 =head1 PUBLIC INTERFACE METHODS
 
-=head2 Default Methods
+=head2 Public Methods
 
 =over 4
 
@@ -278,7 +279,7 @@ sub Gallery {
 
 =head1 ADMIN INTERFACE METHODS
 
-=head2 Link Methods
+=head2 Administration Methods
 
 =over 4
 
@@ -293,6 +294,10 @@ Prep for adding a photo.
 =item Edit
 
 Edit details of an existing photo.
+
+=item Move
+
+Move a photo between albums.
 
 =item Save
 
@@ -340,6 +345,18 @@ sub Edit {
 
 }
 
+sub Move {
+    return  unless AccessUser($LEVEL);
+    my $photoid = $cgiparams{'iid'};
+    my $pageid  = $cgiparams{'pid'};
+    my $oldid   = $cgiparams{'oid'};
+
+    return  unless($photoid && $pageid && $oldid);
+
+    # get page details
+    $dbi->DoQuery('MovePhoto',$pageid,$oldid,$photoid);
+}
+
 sub Save {
     return  unless AccessUser($LEVEL);
 
@@ -365,9 +382,13 @@ sub Archive {
 
     my @rows = $dbi->GetQuery('hash','GetPhotoByID',$cgiparams{$INDEXKEY});
     if($rows[0]->{pageid} == 1) {
+        return  unless AccessUser(ADMIN);
+        my @photo = $dbi->GetQuery('hash','CheckPhoto',1,$cgiparams{$INDEXKEY});
+        if(@photo && $photo[0]->{count} == 1) {   # only delete if no others match
+            DeleteFile( file => "$settings{webdir}/photos/$rows[0]->{image}" );
+            DeleteFile( file => "$settings{webdir}/photos/$rows[0]->{thumb}" );
+        }
         $dbi->DoQuery('DeletePhoto',$cgiparams{$INDEXKEY});
-        unlink "$settings{webdir}/photos/".$rows[0]->{image};
-        unlink "$settings{webdir}/photos/".$rows[0]->{thumb};
         $tvars{thanks_message} = 'Photo deleted successfully.';
     } else {
         $dbi->DoQuery('MovePhoto',1,$cgiparams{$INDEXKEY});
@@ -397,4 +418,3 @@ Miss Barbell Productions, L<http://www.missbarbell.co.uk/>
   modify it under the Artistic License 2.0.
 
 =cut
-

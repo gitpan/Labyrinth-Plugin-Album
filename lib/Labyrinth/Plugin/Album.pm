@@ -3,7 +3,7 @@ package Labyrinth::Plugin::Album;
 use strict;
 use warnings;
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 =head1 NAME
 
@@ -43,4 +43,3 @@ Miss Barbell Productions, L<http://www.missbarbell.co.uk/>
   modify it under the Artistic License 2.0.
 
 =cut
-

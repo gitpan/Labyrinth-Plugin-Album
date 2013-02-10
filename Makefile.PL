@@ -15,13 +15,14 @@ WriteMakefile(
     PREREQ_PM           => {
 
         # prereqs
+        'File::Path'                => '0',
         'Image::Size'               => '0',
-        'Labyrinth'                 => '5.10',
+        'Labyrinth'                 => '5.14',
         'Labyrinth::Plugin::Hits'   => '5.09',
 
         # build/test prereqs
-        'Test::More'                => '0.70',
-        'IO::File'                  => '0'
+        'IO::File'                  => '0',
+        'Test::More'                => '0.70'
 
     }
 );
