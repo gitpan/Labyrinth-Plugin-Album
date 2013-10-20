@@ -3,7 +3,7 @@ package Labyrinth::Plugin::Album::Photos;
 use strict;
 use warnings;
 
-my $VERSION = '1.04';
+my $VERSION = '1.05';
 
 =head1 NAME
 
@@ -91,6 +91,13 @@ a 3x3 grid of nine images. Includes links for prev & next to further gallery
 images.
 
 Images returned are determined by the given metadata.
+
+=item Albums
+
+Retrieve a collection of albums and their photos. This is particularly useful
+when multiple galleries are being displayed. The results are stored in the 
+template variable $tvars{albums}{<album id>}{records}, as an array of the
+photos, as per the List method.
 
 =back
 
@@ -272,6 +279,16 @@ sub Gallery {
     $tvars{data} = \@rows   if(@rows);
     my @prev = $dbi->GetQuery('hash',$key.'GalleryMin',{where=>$where},$start);
     $tvars{prev} = $prev[8]->{photoid}  unless(@prev < 9);
+}
+
+sub Albums {
+    next unless($cgiparams{'pages'});
+    my @pages = split(',',$cgiparams{'pages'});
+    for my $page (@pages) {
+        $cgiparams{pageid} = $page;
+        List();
+        $tvars{albums}{$page}{records} = $tvars{album}->{records};
+    }
 }
 
 #----------------------------------------------------------------------------
