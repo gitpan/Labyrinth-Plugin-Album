@@ -8,7 +8,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     AUTHOR              => 'Barbie <barbie@cpan.org>',
-    NAME                => 'Labyrinth-Plugin-Album',
+    NAME                => 'Labyrinth::Plugin::Album',
     VERSION_FROM        => 'lib/Labyrinth/Plugin/Album.pm',
     ABSTRACT            => 'Album plugin for the Labyrinth framework',
     NO_META             => 1,
@@ -22,6 +22,7 @@ WriteMakefile(
 
         # build/test prereqs
         'IO::File'                  => '0',
+        'Labyrinth::Test::Harness'  => '1.02',
         'Test::More'                => '0.70'
 
     }
